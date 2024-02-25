@@ -2,6 +2,10 @@
 name = "seeker"
 version = "0.1.0"
 edition = "2021"
+authors = ["Jan M. D. Hansen"]
+license-file = "LICENSE"
+repository = "https://github.com/jamadaha/seeker"
+description = "A PDDL planner"
 
 [dependencies]
 clap = { version = "4.5.1", features = ["derive"] }
