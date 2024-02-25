@@ -6,7 +6,7 @@ use fxhash::FxBuildHasher;
 use heuristic::goal_count::GoalCount;
 use indexmap::IndexMap;
 use search::{lgbfs::LGBFS, solve};
-use std::{error::Error, path::PathBuf, time::Duration};
+use std::{error::Error, fs, path::PathBuf, time::Duration};
 
 type FxIndexMap<K, V> = IndexMap<K, V, FxBuildHasher>;
 
@@ -17,6 +17,8 @@ struct Args {
     time_limit: Option<Duration>,
     #[arg(short, long)]
     memory_limit: Option<usize>,
+    #[arg(short, long)]
+    out: Option<PathBuf>,
     domain: PathBuf,
     problem: PathBuf,
 }
@@ -28,6 +30,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut searcher = Box::new(LGBFS::new(&task.init, &GoalCount {}));
     let _result = solve(&task, args.time_limit, args.memory_limit, &mut searcher)?;
     let plan = task.trace_path(&_result);
-    println!("{}", task.export_plan(&plan));
+    if let Some(out_path) = args.out {
+        fs::write(out_path, task.export_plan(&plan))?;
+    } else {
+        println!("{}", task.export_plan(&plan));
+    }
     Ok(())
 }
