@@ -24,10 +24,18 @@ struct Args {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
+    println!("Parsing args");
     let args = Args::parse();
+    println!("Translating task");
     let task = pddllib::translation::translate_from_file(&args.domain, &args.problem)
         .map_err(|err| format!("{:?}", err))?;
-    let mut searcher = Box::new(LGBFS::new(&task.init, &GoalCount {}));
+    println!("Types: {}", task.types.len());
+    println!("Predicates: {}", task.predicates.len());
+    println!("Actions: {}", task.actions.len());
+    println!("Objects: {}", task.objects.len());
+    println!("Generating searcher");
+    let mut searcher = Box::new(LGBFS::new(&task.init, Box::new(GoalCount::new())));
+    println!("Beginning search");
     let _result = solve(&task, args.time_limit, args.memory_limit, &mut searcher)?;
     let plan = task.trace_path(&_result);
     if let Some(out_path) = args.out {

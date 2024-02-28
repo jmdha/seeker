@@ -32,11 +32,11 @@ impl PartialOrd for Element {
 pub struct LGBFS {
     queue: BinaryHeap<Element>,
     parents: FxIndexMap<State, usize>,
-    heuristic: &'static dyn Heuristic,
+    heuristic: Box<dyn Heuristic>,
 }
 
 impl LGBFS {
-    pub fn new(initial_state: &State, heuristic: &'static dyn Heuristic) -> Self {
+    pub fn new(initial_state: &State, heuristic: Box<dyn Heuristic>) -> Self {
         let mut parents = FxIndexMap::default();
         parents.insert(initial_state.clone(), 0);
         Self {

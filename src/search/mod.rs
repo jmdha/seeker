@@ -41,24 +41,34 @@ pub fn solve<'a>(
     searcher: &mut Box<impl SearchAlgorithm<'a>>,
 ) -> Result<'a> {
     let start = Instant::now();
+    let result: Result<'a>;
+    let mut steps = 0;
     loop {
+        steps += 1;
         if let Some(time_limit) = time_limit {
             let elapsed = start.elapsed();
             if elapsed > time_limit {
-                return Err(Error::OutOfTime);
+                result = Err(Error::OutOfTime);
+                break;
             }
         }
-        if let Some(memory_limit) = memory_limit {
-            if let Some(usage) = memory_stats() {
-                if usage.physical_mem > memory_limit * 1000000 {
-                    return Err(Error::OutOfMemory);
+        if steps % 256 == 0 {
+            if let Some(memory_limit) = memory_limit {
+                if let Some(usage) = memory_stats() {
+                    if usage.physical_mem > memory_limit * 1000000 {
+                        result = Err(Error::OutOfMemory);
+                        break;
+                    }
                 }
             }
         }
-        if let Some(result) = searcher.step(task) {
-            return result;
+        if let Some(search_result) = searcher.step(task) {
+            result = search_result;
+            break;
         }
     }
+    println!("Steps: {}", steps);
+    result
 }
 
 fn trace(parents: &FxIndexMap<State, usize>, goal_index: usize) -> Vec<State> {
