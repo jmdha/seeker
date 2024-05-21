@@ -1,3 +1,4 @@
+pub mod bfs;
 pub mod dfs;
 pub mod lgbfs;
 
@@ -43,7 +44,7 @@ pub fn solve<'a>(
 ) -> Result<'a> {
     let start = Instant::now();
     let result: Result<'a>;
-    let mut steps = 0;
+    let mut steps: u128 = 0;
     loop {
         if let Some(time_limit) = time_limit {
             let elapsed = start.elapsed();

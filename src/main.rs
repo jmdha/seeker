@@ -1,7 +1,5 @@
 use clap::Parser;
-use fxhash::FxBuildHasher;
-use indexmap::IndexMap;
-use seeker::search::dfs::DFS;
+use seeker::search::bfs::BFS;
 use seeker::search::solve;
 use std::{
     error::Error,
@@ -9,8 +7,6 @@ use std::{
     path::PathBuf,
     time::{Duration, Instant},
 };
-
-type FxIndexMap<K, V> = IndexMap<K, V, FxBuildHasher>;
 
 #[derive(Parser, Debug)]
 struct Args {
@@ -47,7 +43,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("action: {}", task.actions.len());
     println!("object: {}", task.objects.len());
     println!("generating searcher...");
-    let mut searcher = Box::new(DFS::new(&task.init));
+    let mut searcher = Box::new(BFS::new(&task.init));
     println!("beginning search...");
     let t = Instant::now();
     let _result = solve(&task, args.time_limit, args.memory_limit, &mut searcher);
