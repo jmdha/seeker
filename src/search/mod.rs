@@ -1,5 +1,6 @@
 pub mod bfs;
 pub mod dfs;
+pub mod gbfs;
 pub mod lgbfs;
 
 use clap::Subcommand;
@@ -25,6 +26,11 @@ pub enum SearchKind {
     BFS,
     /// Depth First Search
     DFS,
+    /// Greedy Best First Search
+    GBFS {
+        #[arg(default_value = "goal-count")]
+        heuristic: HeuristicKind,
+    },
     /// Lazy Greedy Best First Search
     LGBFS {
         #[arg(default_value = "goal-count")]
@@ -54,6 +60,9 @@ pub fn generate<'a>(task: &'a Task, search: &'a SearchKind) -> Box<dyn SearchAlg
     match search {
         SearchKind::BFS => Box::new(bfs::BFS::new(&task.init)),
         SearchKind::DFS => Box::new(dfs::DFS::new(&task.init)),
+        SearchKind::GBFS { heuristic: h } => {
+            Box::new(gbfs::GBFS::new(&task.init, heuristic::generate(task, h)))
+        }
         SearchKind::LGBFS { heuristic: h } => {
             Box::new(lgbfs::LGBFS::new(&task.init, heuristic::generate(task, h)))
         }

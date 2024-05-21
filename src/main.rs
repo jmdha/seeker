@@ -28,13 +28,11 @@ struct Args {
     domain: PathBuf,
     /// Path to problem file
     problem: PathBuf,
-    /// Search algorithm
     #[command(subcommand)]
     search: Option<SearchKind>,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    println!("parsing args...");
     let args = Args::parse();
     println!("translating task...");
     let t = Instant::now();
