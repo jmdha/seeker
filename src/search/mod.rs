@@ -44,7 +44,6 @@ pub fn solve<'a>(
     let result: Result<'a>;
     let mut steps = 0;
     loop {
-        steps += 1;
         if let Some(time_limit) = time_limit {
             let elapsed = start.elapsed();
             if elapsed > time_limit {
@@ -52,13 +51,11 @@ pub fn solve<'a>(
                 break;
             }
         }
-        if steps % 256 == 0 {
-            if let Some(memory_limit) = memory_limit {
-                if let Some(usage) = memory_stats() {
-                    if usage.physical_mem > memory_limit * 1000000 {
-                        result = Err(Error::OutOfMemory);
-                        break;
-                    }
+        if let Some(memory_limit) = memory_limit {
+            if let Some(usage) = memory_stats() {
+                if usage.physical_mem > memory_limit * 1000000 {
+                    result = Err(Error::OutOfMemory);
+                    break;
                 }
             }
         }
@@ -66,6 +63,7 @@ pub fn solve<'a>(
             result = search_result;
             break;
         }
+        steps += 1;
     }
     println!("steps: {}", steps);
     result

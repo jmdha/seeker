@@ -14,7 +14,7 @@ humantime = "2.1.0"
 pddllib = "0.1.2"
 indexmap = "2.2.3"
 fxhash = "0.2.1"
-memory-stats = "1.1.0"
+memory-stats = { version = "1.1.0", features = ["always_use_statm"] }
 
 [profile.release]
 debug = 1
