@@ -32,6 +32,7 @@ pub type Result<'a> = std::result::Result<Vec<State>, Error>;
 
 pub trait SearchAlgorithm<'a> {
     fn step(&mut self, task: &'a Task) -> Option<Result<'a>>;
+    fn generated(&self) -> usize;
 }
 
 pub fn solve<'a>(
@@ -65,6 +66,7 @@ pub fn solve<'a>(
         }
         steps += 1;
     }
+    println!("generated {} states", searcher.generated());
     println!("steps: {}", steps);
     result
 }
