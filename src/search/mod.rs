@@ -67,7 +67,7 @@ pub fn solve<'a>(
             break;
         }
     }
-    println!("Steps: {}", steps);
+    println!("steps: {}", steps);
     result
 }
 

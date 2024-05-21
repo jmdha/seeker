@@ -12,35 +12,45 @@ type FxIndexMap<K, V> = IndexMap<K, V, FxBuildHasher>;
 
 #[derive(Parser, Debug)]
 struct Args {
+    /// Time limit in human time.
+    /// Supported units: ns, us, ms, sec, min, hours, days, weeks, months, years (and few variations)
     #[arg(short, long)]
     #[clap(value_parser = humantime::parse_duration)]
     time_limit: Option<Duration>,
+    /// Memory limit in MB
     #[arg(short, long)]
     memory_limit: Option<usize>,
+    /// Avoids printing plan to stdout
+    #[arg(short, long)]
+    quiet: bool,
+    /// Path to which the plan file will be written
     #[arg(short, long)]
     out: Option<PathBuf>,
+    /// Path to domain file
     domain: PathBuf,
+    /// Path to problem file
     problem: PathBuf,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    println!("Parsing args");
+    println!("parsing args...");
     let args = Args::parse();
-    println!("Translating task");
+    println!("translating task...");
     let task = pddllib::translation::translate_from_file(&args.domain, &args.problem)
         .map_err(|err| format!("{:?}", err))?;
-    println!("Types: {}", task.types.len());
-    println!("Predicates: {}", task.predicates.len());
-    println!("Actions: {}", task.actions.len());
-    println!("Objects: {}", task.objects.len());
-    println!("Generating searcher");
+    println!("type: {}", task.types.len());
+    println!("predicate: {}", task.predicates.len());
+    println!("action: {}", task.actions.len());
+    println!("object: {}", task.objects.len());
+    println!("generating searcher...");
     let mut searcher = Box::new(LGBFS::new(&task.init, Box::new(GoalCount::new())));
-    println!("Beginning search");
+    println!("beginning search...");
     let _result = solve(&task, args.time_limit, args.memory_limit, &mut searcher)?;
     let plan = task.trace_path(&_result);
     if let Some(out_path) = args.out {
         fs::write(out_path, task.export_plan(&plan))?;
-    } else {
+    }
+    if !args.quiet {
         println!("{}", task.export_plan(&plan));
     }
     Ok(())
