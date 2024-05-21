@@ -16,5 +16,8 @@ indexmap = "2.2.3"
 fxhash = "0.2.1"
 memory-stats = { version = "1.1.0", features = ["always_use_statm"] }
 
+[dev-dependencies]
+rstest = "0.18.2"
+
 [profile.release]
 debug = 1
