@@ -6,7 +6,12 @@ use fxhash::FxBuildHasher;
 use heuristic::goal_count::GoalCount;
 use indexmap::IndexMap;
 use search::{lgbfs::LGBFS, solve};
-use std::{error::Error, fs, path::PathBuf, time::Duration};
+use std::{
+    error::Error,
+    fs,
+    path::PathBuf,
+    time::{Duration, Instant},
+};
 
 type FxIndexMap<K, V> = IndexMap<K, V, FxBuildHasher>;
 
@@ -36,8 +41,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("parsing args...");
     let args = Args::parse();
     println!("translating task...");
+    let t = Instant::now();
     let task = pddllib::translation::translate_from_file(&args.domain, &args.problem)
         .map_err(|err| format!("{:?}", err))?;
+    println!("translation time: {}s", t.elapsed().as_secs_f64());
     println!("type: {}", task.types.len());
     println!("predicate: {}", task.predicates.len());
     println!("action: {}", task.actions.len());
@@ -45,7 +52,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("generating searcher...");
     let mut searcher = Box::new(LGBFS::new(&task.init, Box::new(GoalCount::new())));
     println!("beginning search...");
+    let t = Instant::now();
     let _result = solve(&task, args.time_limit, args.memory_limit, &mut searcher)?;
+    println!("search time: {}s", t.elapsed().as_secs_f64());
     let plan = task.trace_path(&_result);
     if let Some(out_path) = args.out {
         fs::write(out_path, task.export_plan(&plan))?;
