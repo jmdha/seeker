@@ -1,11 +1,8 @@
-mod heuristic;
-mod search;
-
 use clap::Parser;
 use fxhash::FxBuildHasher;
-use heuristic::goal_count::GoalCount;
 use indexmap::IndexMap;
-use search::{lgbfs::LGBFS, solve};
+use seeker::search::dfs::DFS;
+use seeker::search::solve;
 use std::{
     error::Error,
     fs,
@@ -50,12 +47,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("action: {}", task.actions.len());
     println!("object: {}", task.objects.len());
     println!("generating searcher...");
-    let mut searcher = Box::new(LGBFS::new(&task.init, Box::new(GoalCount::new())));
+    let mut searcher = Box::new(DFS::new(&task.init));
     println!("beginning search...");
     let t = Instant::now();
-    let _result = solve(&task, args.time_limit, args.memory_limit, &mut searcher)?;
+    let _result = solve(&task, args.time_limit, args.memory_limit, &mut searcher);
     println!("search time: {}s", t.elapsed().as_secs_f64());
-    let plan = task.trace_path(&_result);
+    let result = _result?;
+    let plan = task.trace_path(&result);
+    println!("plan length: {}", plan.len());
     if let Some(out_path) = args.out {
         fs::write(out_path, task.export_plan(&plan))?;
     }

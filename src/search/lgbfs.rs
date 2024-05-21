@@ -33,7 +33,6 @@ pub struct LGBFS {
     queue: BinaryHeap<Element>,
     parents: FxIndexMap<State, usize>,
     heuristic: Box<dyn Heuristic>,
-    generated: usize,
 }
 
 impl LGBFS {
@@ -47,15 +46,11 @@ impl LGBFS {
             }]),
             parents,
             heuristic,
-            generated: 0,
         }
     }
 }
 
 impl<'a> SearchAlgorithm<'a> for LGBFS {
-    fn generated(&self) -> usize {
-        self.generated
-    }
     fn step(&mut self, task: &'a Task) -> Option<Result<'a>> {
         let Element { index, estimate: _ } = match self.queue.pop() {
             Some(e) => e,
@@ -69,7 +64,6 @@ impl<'a> SearchAlgorithm<'a> for LGBFS {
             }
             (node, successors(task, node))
         };
-        self.generated += successors.len();
 
         let estimate = self.heuristic.estimate(node, &task.goal);
         for successor in successors.into_iter() {
