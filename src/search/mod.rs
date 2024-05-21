@@ -2,6 +2,7 @@ pub mod bfs;
 pub mod dfs;
 pub mod lgbfs;
 
+use clap::Subcommand;
 use memory_stats::memory_stats;
 use pddllib::{state::State, task::Task};
 use std::{
@@ -9,13 +10,29 @@ use std::{
     time::{Duration, Instant},
 };
 
-use crate::FxIndexMap;
+use crate::{
+    heuristic::{self, HeuristicKind},
+    FxIndexMap,
+};
 
 #[derive(Debug)]
 pub enum Error {
     Unsolvable,
     OutOfTime,
     OutOfMemory,
+}
+
+#[derive(Subcommand, Debug, Clone)]
+pub enum SearchKind {
+    /// Breadth First Search
+    BFS,
+    /// Depth First Search
+    DFS,
+    /// Lazy Greedy Best First Search
+    LGBFS {
+        #[arg(short, long, default_value = "goal-count")]
+        heuristic: HeuristicKind,
+    },
 }
 
 impl Display for Error {
@@ -36,11 +53,21 @@ pub trait SearchAlgorithm<'a> {
     fn step(&mut self, task: &'a Task) -> Option<Result<'a>>;
 }
 
+pub fn generate<'a>(task: &'a Task, search: &'a SearchKind) -> Box<dyn SearchAlgorithm<'a>> {
+    match search {
+        SearchKind::BFS => Box::new(bfs::BFS::new(&task.init)),
+        SearchKind::DFS => Box::new(dfs::DFS::new(&task.init)),
+        SearchKind::LGBFS { heuristic: h } => {
+            Box::new(lgbfs::LGBFS::new(&task.init, heuristic::generate(task, h)))
+        }
+    }
+}
+
 pub fn solve<'a>(
     task: &'a Task,
     time_limit: Option<Duration>,
     memory_limit: Option<usize>,
-    searcher: &mut Box<impl SearchAlgorithm<'a>>,
+    searcher: &mut Box<dyn SearchAlgorithm<'a>>,
 ) -> Result<'a> {
     let start = Instant::now();
     let result: Result<'a>;

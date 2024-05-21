@@ -1,6 +1,6 @@
 use clap::Parser;
-use seeker::search::bfs::BFS;
-use seeker::search::solve;
+use seeker::search::SearchKind;
+use seeker::search::{self, solve};
 use std::{
     error::Error,
     fs,
@@ -28,6 +28,9 @@ struct Args {
     domain: PathBuf,
     /// Path to problem file
     problem: PathBuf,
+    /// Search algorithm
+    #[command(subcommand)]
+    search: Option<SearchKind>,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -42,8 +45,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("predicate: {}", task.predicates.len());
     println!("action: {}", task.actions.len());
     println!("object: {}", task.objects.len());
+    if args.search.is_none() {
+        println!("no search algorithm specified, exiting");
+        return Ok(());
+    }
     println!("generating searcher...");
-    let mut searcher = Box::new(BFS::new(&task.init));
+    let mut searcher = search::generate(&task, args.search.as_ref().unwrap());
     println!("beginning search...");
     let t = Instant::now();
     let _result = solve(&task, args.time_limit, args.memory_limit, &mut searcher);
