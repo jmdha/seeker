@@ -1,10 +1,7 @@
 use std::collections::VecDeque;
 
 use super::SearchAlgorithm;
-use crate::{
-    search::{trace, Error},
-    FxIndexMap,
-};
+use crate::{search::Error, trace, FxIndexMap};
 use indexmap::map::Entry::{Occupied, Vacant};
 use pddllib::{state::State, successor_generation::successors};
 

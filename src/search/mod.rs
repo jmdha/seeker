@@ -10,10 +10,7 @@ use std::{
     time::{Duration, Instant},
 };
 
-use crate::{
-    heuristic::{self, HeuristicKind},
-    FxIndexMap,
-};
+use crate::heuristic::{self, HeuristicKind};
 
 #[derive(Debug)]
 pub enum Error {
@@ -30,7 +27,7 @@ pub enum SearchKind {
     DFS,
     /// Lazy Greedy Best First Search
     LGBFS {
-        #[arg(short, long, default_value = "goal-count")]
+        #[arg(default_value = "goal-count")]
         heuristic: HeuristicKind,
     },
 }
@@ -96,20 +93,4 @@ pub fn solve<'a>(
     }
     println!("steps: {}", steps);
     result
-}
-
-fn trace(parents: &FxIndexMap<State, usize>, goal_index: usize) -> Vec<State> {
-    let mut i = goal_index;
-    let mut states = vec![];
-    loop {
-        let (state, parent) = parents.get_index(i).unwrap();
-        states.push(state.to_owned());
-        i = *parent;
-        if i == 0 {
-            states.push(parents.get_index(*parent).unwrap().0.to_owned());
-            break;
-        }
-    }
-    states.reverse();
-    states
 }

@@ -1,4 +1,4 @@
-use pddllib::{state::State, task::Goal};
+use pddllib::{state::State, task::Task};
 
 use super::Heuristic;
 
@@ -18,8 +18,9 @@ impl GoalCount {
 }
 
 impl Heuristic for GoalCount {
-    fn estimate(&mut self, state: &State, goal: &Goal) -> usize {
-        let estimate = goal
+    fn estimate(&mut self, task: &Task, state: &State) -> usize {
+        let estimate = task
+            .goal
             .iter()
             .filter(|(fact, value)| state.has_nary(fact.predicate, &fact.args) != *value)
             .count();

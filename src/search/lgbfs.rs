@@ -1,9 +1,5 @@
 use super::{Result, SearchAlgorithm};
-use crate::{
-    heuristic::Heuristic,
-    search::{trace, Error},
-    FxIndexMap,
-};
+use crate::{heuristic::Heuristic, search::Error, trace, FxIndexMap};
 use indexmap::map::Entry::{Occupied, Vacant};
 use pddllib::{state::State, successor_generation::successors, task::Task};
 use std::collections::BinaryHeap;
@@ -65,7 +61,7 @@ impl<'a> SearchAlgorithm<'a> for LGBFS {
             (node, successors(task, node))
         };
 
-        let estimate = self.heuristic.estimate(node, &task.goal);
+        let estimate = self.heuristic.estimate(task, node);
         for successor in successors.into_iter() {
             let successor_index = match self.parents.entry(successor) {
                 Occupied(_) => continue,

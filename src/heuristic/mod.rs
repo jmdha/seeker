@@ -1,10 +1,7 @@
 pub mod goal_count;
 
 use clap::ValueEnum;
-use pddllib::{
-    state::State,
-    task::{Goal, Task},
-};
+use pddllib::{state::State, task::Task};
 
 #[derive(ValueEnum, Clone, Debug)]
 pub enum HeuristicKind {
@@ -12,7 +9,7 @@ pub enum HeuristicKind {
 }
 
 pub trait Heuristic {
-    fn estimate(&mut self, state: &State, goal: &Goal) -> usize;
+    fn estimate(&mut self, task: &Task, state: &State) -> usize;
 }
 
 pub fn generate<'a>(_: &'a Task, heuristic: &'a HeuristicKind) -> Box<dyn Heuristic> {
