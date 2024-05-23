@@ -34,24 +34,30 @@ struct Args {
 
 fn main() -> Result<()> {
     let args = Args::parse();
+    let t_preprocessing = Instant::now();
     println!("Reading files...");
     let t = Instant::now();
     let domain = fs::read_to_string(&args.domain)?;
     let problem = fs::read_to_string(&args.problem)?;
-    println!("Read time: {}", t.elapsed().as_secs_f64());
+    println!("Read time: {}s", t.elapsed().as_secs_f64());
     println!("Parsing files...");
     let t = Instant::now();
     let domain = pddlp::domain::parse(&domain).unwrap();
     let problem = pddlp::problem::parse(&problem).unwrap();
-    println!("Parse time: {}", t.elapsed().as_secs_f64());
+    println!("Parse time: {}s", t.elapsed().as_secs_f64());
     println!("Translating task...");
     let t = Instant::now();
     let task = pddllib::translation::translate_parsed(&domain, &problem)?;
     println!("Translation time: {}s", t.elapsed().as_secs_f64());
+    println!(
+        "Preprocessing time: {}s",
+        t_preprocessing.elapsed().as_secs_f64()
+    );
     println!("Types: {}", task.types.len());
     println!("Predicates: {}", task.predicates.len());
     println!("Actions: {}", task.actions.len());
     println!("Objects: {}", task.objects.len());
+    println!("Initial state facts: {}", task.init.fact_count());
     if args.search.is_none() {
         println!("No search algorithm specified, exiting");
         return Ok(());
