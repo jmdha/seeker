@@ -1,8 +1,8 @@
+use anyhow::Result;
 use clap::Parser;
 use seeker::search::SearchKind;
 use seeker::search::{self, solve};
 use std::{
-    error::Error,
     fs,
     path::PathBuf,
     time::{Duration, Instant},
@@ -32,12 +32,21 @@ struct Args {
     search: Option<SearchKind>,
 }
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() -> Result<()> {
     let args = Args::parse();
+    println!("reading files...");
+    let t = Instant::now();
+    let domain = fs::read_to_string(&args.domain)?;
+    let problem = fs::read_to_string(&args.problem)?;
+    println!("read time: {}", t.elapsed().as_secs_f64());
+    println!("parsing files...");
+    let t = Instant::now();
+    let domain = pddlp::domain::parse(&domain).unwrap();
+    let problem = pddlp::problem::parse(&problem).unwrap();
+    println!("parse time: {}", t.elapsed().as_secs_f64());
     println!("translating task...");
     let t = Instant::now();
-    let task = pddllib::translation::translate_from_file(&args.domain, &args.problem)
-        .map_err(|err| format!("{:?}", err))?;
+    let task = pddllib::translation::translate_parsed(&domain, &problem)?;
     println!("translation time: {}s", t.elapsed().as_secs_f64());
     println!("type: {}", task.types.len());
     println!("predicate: {}", task.predicates.len());
@@ -52,15 +61,15 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("beginning search...");
     let t = Instant::now();
     let _result = solve(&task, args.time_limit, args.memory_limit, &mut searcher);
-    println!("search time: {}s", t.elapsed().as_secs_f64());
     let result = _result?;
     let plan = task.trace_path(&result);
-    println!("plan length: {}", plan.len());
     if let Some(out_path) = args.out {
         fs::write(out_path, task.export_plan(&plan))?;
     }
     if !args.quiet {
         println!("{}", task.export_plan(&plan));
     }
+    println!("search time: {}s", t.elapsed().as_secs_f64());
+    println!("plan length: {}", plan.len());
     Ok(())
 }
