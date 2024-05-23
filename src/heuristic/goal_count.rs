@@ -22,10 +22,10 @@ impl Heuristic for GoalCount {
         let estimate = task
             .goal
             .iter()
-            .filter(|(fact, value)| state.has_nary(fact.predicate, &fact.args) != *value)
+            .filter(|(fact, value)| state.has_fact(fact) != *value)
             .count();
         if estimate < self.best_estimate {
-            println!("new best heuristic estimate: {}", estimate);
+            println!("New best heuristic estimate: {}", estimate);
             self.best_estimate = estimate;
         }
         self.estimates += 1;
@@ -35,6 +35,6 @@ impl Heuristic for GoalCount {
 
 impl Drop for GoalCount {
     fn drop(&mut self) {
-        println!("evaluated {} states", self.estimates);
+        println!("Evaluated {} states", self.estimates);
     }
 }

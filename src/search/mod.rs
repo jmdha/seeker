@@ -41,9 +41,9 @@ pub enum SearchKind {
 impl Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Error::Unsolvable => write!(f, "unsolvable"),
-            Error::OutOfTime => write!(f, "out of time"),
-            Error::OutOfMemory => write!(f, "out of memory"),
+            Error::Unsolvable => write!(f, "Unsolvable"),
+            Error::OutOfTime => write!(f, "Out of time"),
+            Error::OutOfMemory => write!(f, "Out of memory"),
         }
     }
 }
@@ -100,6 +100,6 @@ pub fn solve<'a>(
         }
         steps += 1;
     }
-    println!("steps: {}", steps);
+    println!("Steps: {}", steps);
     result
 }
