@@ -77,6 +77,7 @@ pub fn solve<'a>(
 ) -> Result<'a> {
     let start = Instant::now();
     let result: Result<'a>;
+    let mut peak_memory = 0;
     let mut steps: u128 = 0;
     loop {
         if let Some(time_limit) = time_limit {
@@ -86,9 +87,13 @@ pub fn solve<'a>(
                 break;
             }
         }
-        if let Some(memory_limit) = memory_limit {
-            if let Some(usage) = memory_stats() {
-                if usage.physical_mem > memory_limit * 1000000 {
+        if let Some(usage) = memory_stats() {
+            let usage = usage.physical_mem;
+            if usage > peak_memory {
+                peak_memory = usage;
+            }
+            if let Some(memory_limit) = memory_limit {
+                if usage > memory_limit * 1000000 {
                     result = Err(Error::OutOfMemory);
                     break;
                 }
@@ -100,6 +105,7 @@ pub fn solve<'a>(
         }
         steps += 1;
     }
+    println!("Peak memory: {}MB", peak_memory / 1000000);
     println!("Steps: {}", steps);
     result
 }
