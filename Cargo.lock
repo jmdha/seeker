@@ -363,9 +363,9 @@ dependencies = [
 
 [[package]]
 name = "pddllib"
-version = "0.1.6"
+version = "0.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f53c3fe070cbbe95a5cda07918f36dceb9466aa0031a6686c9096cc27d568b19"
+checksum = "a1745f4e517e2ce697c04f4342a6c8d50b8fc321187a348806162041782bb9a8"
 dependencies = [
  "indexmap",
  "itertools",

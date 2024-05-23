@@ -22,7 +22,7 @@ impl Heuristic for GoalCount {
         let estimate = task
             .goal
             .iter()
-            .filter(|(fact, value)| state.has_fact(fact) != *value)
+            .filter(|(fact, value)| state.has_fact(task, fact) != *value)
             .count();
         if estimate < self.best_estimate {
             println!("New best heuristic estimate: {}", estimate);

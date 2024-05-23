@@ -57,6 +57,7 @@ fn main() -> Result<()> {
     println!("Predicates: {}", task.predicates.len());
     println!("Actions: {}", task.actions.len());
     println!("Objects: {}", task.objects.len());
+    println!("Static facts: {}", task.static_facts.len());
     println!("Initial state facts: {}", task.init.fact_count());
     if args.search.is_none() {
         println!("No search algorithm specified, exiting");

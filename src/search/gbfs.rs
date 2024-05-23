@@ -55,7 +55,7 @@ impl<'a> SearchAlgorithm<'a> for GBFS {
 
         let successors = {
             let (node, _) = self.parents.get_index(index).unwrap();
-            if node.covers(&task.goal) {
+            if node.covers(&task, &task.goal) {
                 return Some(Ok(trace(&self.parents, index)));
             }
             successors(task, node)
