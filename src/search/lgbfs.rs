@@ -12,10 +12,7 @@ struct Element {
 
 impl Ord for Element {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        other
-            .estimate
-            .cmp(&self.estimate)
-            .then_with(|| self.index.cmp(&other.index))
+        other.estimate.cmp(&self.estimate)
     }
 }
 
