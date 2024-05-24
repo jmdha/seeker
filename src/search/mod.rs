@@ -3,6 +3,7 @@ pub mod dfs;
 pub mod gbfs;
 pub mod lgbfs;
 
+use crate::heuristic::{Heuristic, HeuristicKind};
 use clap::Subcommand;
 use memory_stats::memory_stats;
 use pddllib::{state::State, task::Task};
@@ -10,8 +11,6 @@ use std::{
     fmt::Display,
     time::{Duration, Instant},
 };
-
-use crate::heuristic::{self, HeuristicKind};
 
 #[derive(Debug)]
 pub enum Error {
@@ -60,11 +59,11 @@ pub fn generate<'a>(task: &'a Task, search: &'a SearchKind) -> Box<dyn SearchAlg
     match search {
         SearchKind::BFS => Box::new(bfs::BFS::new(&task.init)),
         SearchKind::DFS => Box::new(dfs::DFS::new(&task.init)),
-        SearchKind::GBFS { heuristic: h } => {
-            Box::new(gbfs::GBFS::new(&task.init, heuristic::generate(task, h)))
+        SearchKind::GBFS { heuristic } => {
+            Box::new(gbfs::GBFS::new(&task.init, Heuristic::new(*heuristic)))
         }
-        SearchKind::LGBFS { heuristic: h } => {
-            Box::new(lgbfs::LGBFS::new(&task.init, heuristic::generate(task, h)))
+        SearchKind::LGBFS { heuristic } => {
+            Box::new(lgbfs::LGBFS::new(&task.init, Heuristic::new(*heuristic)))
         }
     }
 }
