@@ -33,6 +33,7 @@ struct Args {
 }
 
 fn main() -> Result<()> {
+    let t_begin = Instant::now();
     let args = Args::parse();
     let t_preprocessing = Instant::now();
     println!("Reading files...");
@@ -76,7 +77,12 @@ fn main() -> Result<()> {
     if !args.quiet {
         println!("{}", task.export_plan(&plan));
     }
-    println!("Search time: {}s", t.elapsed().as_secs_f64());
+    println!(
+        "Search time: {}s ({:.2}%)",
+        t.elapsed().as_secs_f64(),
+        t.elapsed().as_secs_f64() / t_begin.elapsed().as_secs_f64() * 100.0
+    );
+    println!("Total time: {}s", t_begin.elapsed().as_secs_f64());
     println!("Plan length: {}", plan.len());
     Ok(())
 }
