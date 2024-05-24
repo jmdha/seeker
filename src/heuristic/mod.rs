@@ -1,3 +1,4 @@
+pub mod constant;
 pub mod goal_count;
 
 use clap::ValueEnum;
@@ -5,6 +6,7 @@ use pddllib::{state::State, task::Task};
 
 #[derive(ValueEnum, Clone, Debug, Copy)]
 pub enum HeuristicKind {
+    Constant,
     GoalCount,
 }
 
@@ -25,6 +27,7 @@ impl Heuristic {
 
     pub fn estimate(&mut self, task: &Task, state: &State) -> usize {
         let estimate = match self.kind {
+            HeuristicKind::Constant => constant::estimate(task, state),
             HeuristicKind::GoalCount => goal_count::estimate(task, state),
         };
         if estimate < self.best_estimate {
