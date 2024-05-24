@@ -75,7 +75,7 @@ fn main() -> Result<()> {
         fs::write(out_path, task.export_plan(&plan))?;
     }
     if !args.quiet {
-        println!("{}", task.export_plan(&plan));
+        print!("{}", task.export_plan(&plan));
     }
     println!(
         "Search time: {}s ({:.2}%)",
