@@ -1,24 +1,18 @@
-pub mod gbfs;
-pub mod lgbfs;
+mod bfs;
+pub mod error;
+mod gbfs;
+mod lgbfs;
 
+use self::error::Error;
 use crate::heuristic::{Heuristic, HeuristicKind};
 use clap::Subcommand;
 use memory_stats::memory_stats;
 use pddllib::{state::State, task::Task};
-use std::{
-    fmt::Display,
-    time::{Duration, Instant},
-};
-
-#[derive(Debug)]
-pub enum Error {
-    Unsolvable,
-    OutOfTime,
-    OutOfMemory,
-}
+use std::time::{Duration, Instant};
 
 #[derive(Subcommand, Debug, Clone)]
 pub enum SearchKind {
+    BFS,
     /// Greedy Best First Search
     GBFS {
         #[arg(default_value = "goal-count")]
@@ -31,32 +25,17 @@ pub enum SearchKind {
     },
 }
 
-impl Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Error::Unsolvable => write!(f, "Unsolvable"),
-            Error::OutOfTime => write!(f, "Out of time"),
-            Error::OutOfMemory => write!(f, "Out of memory"),
-        }
-    }
-}
-
-impl std::error::Error for Error {}
-
 pub type Result<'a> = std::result::Result<Vec<State>, Error>;
 
 pub trait SearchAlgorithm<'a> {
-    fn step(&mut self, task: &'a Task) -> Option<Result<'a>>;
+    fn step(&mut self, task: &'a Task) -> Result<'a>;
 }
 
 pub fn generate<'a>(task: &'a Task, search: &'a SearchKind) -> Box<dyn SearchAlgorithm<'a>> {
     match search {
-        SearchKind::GBFS { heuristic } => {
-            Box::new(gbfs::GBFS::new(&task.init, Heuristic::new(*heuristic)))
-        }
-        SearchKind::LGBFS { heuristic } => {
-            Box::new(lgbfs::LGBFS::new(&task.init, Heuristic::new(*heuristic)))
-        }
+        SearchKind::BFS => Box::new(bfs::BFS::new(&task.init)),
+        SearchKind::GBFS { heuristic } => Box::new(gbfs::GBFS::new(&task.init, Heuristic::new(*heuristic))),
+        SearchKind::LGBFS { heuristic } => Box::new(lgbfs::LGBFS::new(&task.init, Heuristic::new(*heuristic))),
     }
 }
 
@@ -67,10 +46,15 @@ pub fn solve<'a>(
     searcher: &mut Box<dyn SearchAlgorithm<'a>>,
 ) -> Result<'a> {
     let start = Instant::now();
-    let result: Result<'a>;
+    let mut result: Result<'a>;
     let mut peak_memory = 0;
     let mut steps = 0;
     loop {
+        result = searcher.step(task);
+        steps += 1;
+        if result.is_ok() {
+            break;
+        }
         if let Some(time_limit) = time_limit {
             let elapsed = start.elapsed();
             if elapsed > time_limit {
@@ -92,11 +76,6 @@ pub fn solve<'a>(
                 }
             }
         }
-        if let Some(search_result) = searcher.step(task) {
-            result = search_result;
-            break;
-        }
-        steps += 1;
     }
     println!("Peak memory: {}MB", peak_memory / 1000000);
     println!("Steps: {}", steps);

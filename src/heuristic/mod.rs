@@ -14,7 +14,6 @@ pub enum HeuristicKind {
 
 pub struct Heuristic {
     kind: HeuristicKind,
-    best_estimate: usize,
     estimates: usize,
     time: Duration,
 }
@@ -23,7 +22,6 @@ impl Heuristic {
     pub fn new(kind: HeuristicKind) -> Self {
         Self {
             kind,
-            best_estimate: usize::MAX,
             estimates: 0,
             time: Duration::default(),
         }
@@ -36,10 +34,6 @@ impl Heuristic {
             HeuristicKind::GoalCount => goal_count::estimate(task, state),
         };
         self.time += t.elapsed();
-        if estimate < self.best_estimate {
-            println!("New best heuristic estimate: {}", estimate);
-            self.best_estimate = estimate;
-        }
         self.estimates += 1;
         estimate
     }

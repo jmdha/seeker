@@ -1,7 +1,7 @@
-use super::{Result, SearchAlgorithm};
+use super::SearchAlgorithm;
 use crate::{heuristic::Heuristic, search::Error, trace, FxIndexMap};
-use indexmap::map::Entry::{Occupied, Vacant};
-use pddllib::{state::State, successor_generation::successors, task::Task};
+use indexmap::map::Entry::Vacant;
+use pddllib::{state::State, successor_generation::successors};
 use std::collections::BinaryHeap;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
@@ -33,10 +33,7 @@ impl LGBFS {
         let mut parents = FxIndexMap::default();
         parents.insert(initial_state.clone(), 0);
         Self {
-            queue: BinaryHeap::from(vec![Element {
-                index: 0,
-                estimate: 0,
-            }]),
+            queue: BinaryHeap::from(vec![Element { index: 0, estimate: 0 }]),
             parents,
             heuristic,
         }
@@ -44,36 +41,26 @@ impl LGBFS {
 }
 
 impl<'a> SearchAlgorithm<'a> for LGBFS {
-    fn step(&mut self, task: &'a Task) -> Option<Result<'a>> {
-        let Element { index, estimate: _ } = match self.queue.pop() {
-            Some(e) => e,
-            None => return Some(Err(Error::Unsolvable)),
-        };
-
-        let (node, successors) = {
-            let (node, _) = self.parents.get_index(index).unwrap();
-            if node.covers(task, &task.goal) {
-                return Some(Ok(trace(&self.parents, index)));
-            }
-            (node, successors(task, node))
-        };
-
+    fn step(&mut self, task: &'a pddllib::task::Task) -> super::Result<'a> {
+        let Element { index, estimate: _ } = self.queue.pop().ok_or(Error::Unsolvable)?;
+        let (node, _) = self.parents.get_index(index).unwrap();
+        if node.covers(task, &task.goal) {
+            return Ok(trace(&self.parents, index));
+        }
         let estimate = self.heuristic.estimate(task, node);
-        for successor in successors.into_iter() {
-            let successor_index = match self.parents.entry(successor) {
-                Occupied(_) => continue,
-                Vacant(e) => {
-                    let n = e.index();
-                    e.insert(index);
-                    n
-                }
-            };
+        for successor in successors(task, node) {
+            let s_index;
+            if let Vacant(e) = self.parents.entry(successor) {
+                s_index = e.index();
+                e.insert(index);
+            } else {
+                continue;
+            }
             self.queue.push(Element {
-                index: successor_index,
+                index: s_index,
                 estimate,
             })
         }
-
-        None
+        Err(Error::Unfinished)
     }
 }
