@@ -1,5 +1,3 @@
-pub mod bfs;
-pub mod dfs;
 pub mod gbfs;
 pub mod lgbfs;
 
@@ -21,10 +19,6 @@ pub enum Error {
 
 #[derive(Subcommand, Debug, Clone)]
 pub enum SearchKind {
-    /// Breadth First Search
-    BFS,
-    /// Depth First Search
-    DFS,
     /// Greedy Best First Search
     GBFS {
         #[arg(default_value = "goal-count")]
@@ -57,8 +51,6 @@ pub trait SearchAlgorithm<'a> {
 
 pub fn generate<'a>(task: &'a Task, search: &'a SearchKind) -> Box<dyn SearchAlgorithm<'a>> {
     match search {
-        SearchKind::BFS => Box::new(bfs::BFS::new(&task.init)),
-        SearchKind::DFS => Box::new(dfs::DFS::new(&task.init)),
         SearchKind::GBFS { heuristic } => {
             Box::new(gbfs::GBFS::new(&task.init, Heuristic::new(*heuristic)))
         }

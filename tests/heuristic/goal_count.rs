@@ -1,5 +1,5 @@
 use rstest::rstest;
-use seeker::heuristic::{goal_count::GoalCount, Heuristic};
+use seeker::heuristic::{Heuristic, HeuristicKind::GoalCount};
 
 use crate::gripper;
 
@@ -9,6 +9,6 @@ use crate::gripper;
 #[case(gripper::DOMAIN, gripper::PROBLEM_SOLVED, 0)]
 fn estimate(#[case] domain: &str, #[case] problem: &str, #[case] expected: usize) {
     let task = pddllib::translation::translate(domain, problem).unwrap();
-    let actual = GoalCount::new().estimate(&task.init, &task.goal);
+    let actual = Heuristic::new(GoalCount).estimate(&task, &task.init);
     assert_eq!(expected, actual);
 }

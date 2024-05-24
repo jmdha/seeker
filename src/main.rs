@@ -38,7 +38,9 @@ fn main() -> Result<()> {
     let t_preprocessing = Instant::now();
     println!("Reading files...");
     let t = Instant::now();
+    println!("Reading domain...");
     let domain = fs::read_to_string(&args.domain)?;
+    println!("Reading problem...");
     let problem = fs::read_to_string(&args.problem)?;
     println!("Read time: {}s", t.elapsed().as_secs_f64());
     println!("Parsing files...");
