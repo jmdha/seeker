@@ -10,17 +10,19 @@ use memory_stats::memory_stats;
 use pddllib::{state::State, task::Task};
 use std::time::{Duration, Instant};
 
+/// Search Algorithm
 #[derive(Subcommand, Debug, Clone)]
 pub enum SearchKind {
+    /// Breadth First Search
     BFS,
     /// Greedy Best First Search
     GBFS {
-        #[arg(default_value = "goal-count")]
+        #[command(subcommand)]
         heuristic: HeuristicKind,
     },
     /// Lazy Greedy Best First Search
     LGBFS {
-        #[arg(default_value = "goal-count")]
+        #[command(subcommand)]
         heuristic: HeuristicKind,
     },
 }
@@ -31,11 +33,11 @@ pub trait SearchAlgorithm<'a> {
     fn step(&mut self, task: &'a Task) -> Result<'a>;
 }
 
-pub fn generate<'a>(task: &'a Task, search: &'a SearchKind) -> Box<dyn SearchAlgorithm<'a>> {
+pub fn generate<'a>(task: &'a Task, search: SearchKind) -> Box<dyn SearchAlgorithm<'a>> {
     match search {
         SearchKind::BFS => Box::new(bfs::BFS::new(&task.init)),
-        SearchKind::GBFS { heuristic } => Box::new(gbfs::GBFS::new(&task.init, Heuristic::new(*heuristic))),
-        SearchKind::LGBFS { heuristic } => Box::new(lgbfs::LGBFS::new(&task.init, Heuristic::new(*heuristic))),
+        SearchKind::GBFS { heuristic } => Box::new(gbfs::GBFS::new(&task.init, Heuristic::new(heuristic))),
+        SearchKind::LGBFS { heuristic } => Box::new(lgbfs::LGBFS::new(&task.init, Heuristic::new(heuristic))),
     }
 }
 

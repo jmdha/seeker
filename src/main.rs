@@ -52,10 +52,7 @@ fn main() -> Result<()> {
     let t = Instant::now();
     let task = pddllib::translation::translate_parsed(&domain, &problem)?;
     println!("Translation time: {}s", t.elapsed().as_secs_f64());
-    println!(
-        "Preprocessing time: {}s",
-        t_preprocessing.elapsed().as_secs_f64()
-    );
+    println!("Preprocessing time: {}s", t_preprocessing.elapsed().as_secs_f64());
     println!("Types: {}", task.types.len());
     println!("Predicates: {}", task.predicates.len());
     println!("Actions: {}", task.actions.len());
@@ -67,7 +64,7 @@ fn main() -> Result<()> {
         return Ok(());
     }
     println!("Generating searcher...");
-    let mut searcher = search::generate(&task, args.search.as_ref().unwrap());
+    let mut searcher = search::generate(&task, args.search.unwrap());
     println!("Beginning search...");
     let t = Instant::now();
     let _result = solve(&task, args.time_limit, args.memory_limit, &mut searcher);
