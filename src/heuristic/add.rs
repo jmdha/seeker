@@ -1,10 +1,15 @@
 use super::Heuristic;
 use pddllib::{state::State, task::Task};
 
-#[derive(Default)]
-pub struct GoalCount {}
+pub struct Add {}
 
-impl Heuristic for GoalCount {
+impl Add {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+
+impl Heuristic for Add {
     fn estimate(&self, task: &Task, state: &State) -> usize {
         task.goal
             .iter()

@@ -1,5 +1,6 @@
-use super::SearchAlgorithm;
-use crate::{heuristic::Heuristic, search::Error, trace, FxIndexMap};
+use crate::{evaluator::Evaluator, trace, FxIndexMap};
+
+use super::{error::Error, SearchAlgorithm};
 use indexmap::map::Entry::Vacant;
 use pddllib::{state::State, successor_generation::successors};
 use std::collections::BinaryHeap;
@@ -25,11 +26,11 @@ impl PartialOrd for Element {
 pub struct LGBFS {
     queue: BinaryHeap<Element>,
     parents: FxIndexMap<State, usize>,
-    heuristic: Heuristic,
+    heuristic: Evaluator,
 }
 
 impl LGBFS {
-    pub fn new(initial_state: &State, heuristic: Heuristic) -> Self {
+    pub fn new(initial_state: &State, heuristic: Evaluator) -> Self {
         let mut parents = FxIndexMap::default();
         parents.insert(initial_state.clone(), 0);
         Self {

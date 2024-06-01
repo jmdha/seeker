@@ -3,8 +3,12 @@ pub mod error;
 mod gbfs;
 mod lgbfs;
 
+use crate::{
+    evaluator::{self, Evaluator},
+    heuristic::HeuristicKind,
+};
+
 use self::error::Error;
-use crate::heuristic::{Heuristic, HeuristicKind};
 use clap::Subcommand;
 use memory_stats::memory_stats;
 use pddllib::{state::State, task::Task};
@@ -36,8 +40,8 @@ pub trait SearchAlgorithm<'a> {
 pub fn generate<'a>(task: &'a Task, search: SearchKind) -> Box<dyn SearchAlgorithm<'a>> {
     match search {
         SearchKind::BFS => Box::new(bfs::BFS::new(&task.init)),
-        SearchKind::GBFS { heuristic } => Box::new(gbfs::GBFS::new(&task.init, Heuristic::new(heuristic))),
-        SearchKind::LGBFS { heuristic } => Box::new(lgbfs::LGBFS::new(&task.init, Heuristic::new(heuristic))),
+        SearchKind::GBFS { heuristic } => Box::new(gbfs::GBFS::new(&task.init, Evaluator::new(&task, heuristic))),
+        SearchKind::LGBFS { heuristic } => Box::new(lgbfs::LGBFS::new(&task.init, Evaluator::new(&task, heuristic))),
     }
 }
 

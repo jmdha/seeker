@@ -1,3 +1,4 @@
+pub mod evaluator;
 pub mod heuristic;
 pub mod search;
 
