@@ -45,8 +45,7 @@ impl Heuristic for GoalGraph {
         let mut estimate = 0;
         let mut queue: Vec<&Node> = self.goals.iter().collect();
         while let Some(node) = queue.pop() {
-            let (fact, value) = &node.fact;
-            if state.has_fact(task, fact) == *value {
+            if state.has_fact(task, &node.fact.0) == node.fact.1 {
                 continue;
             }
             if node.children.is_empty() {
