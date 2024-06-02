@@ -17,9 +17,7 @@ fxhash = "0.2.1"
 memory-stats = { version = "1.1.0", features = ["always_use_statm"] }
 anyhow = "1.0.86"
 pddlp = "0.1.6"
-
-[dev-dependencies]
-rstest = "0.19.0"
+itertools = "0.13.0"
 
 [profile.release]
 debug = 1

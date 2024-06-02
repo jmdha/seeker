@@ -5,14 +5,20 @@ use std::time::{Duration, Instant};
 pub struct Evaluator {
     heuristic: Box<dyn Heuristic>,
     estimates: usize,
+    best_estimate: usize,
     time: Duration,
 }
 
 impl Evaluator {
     pub fn new(task: &Task, kind: HeuristicKind) -> Self {
+        println!("Generating evaluator...");
+        let t = Instant::now();
+        let heuristic = heuristic::generate(task, kind);
+        println!("Heuristic init time: {}s", t.elapsed().as_secs_f64());
         Self {
-            heuristic: heuristic::generate(task, kind),
+            heuristic,
             estimates: 0,
+            best_estimate: usize::MAX,
             time: Duration::default(),
         }
     }
@@ -22,6 +28,10 @@ impl Evaluator {
         let estimate = self.heuristic.estimate(task, state);
         self.time += t.elapsed();
         self.estimates += 1;
+        if estimate < self.best_estimate {
+            println!("New best heuristic estimate: {}", estimate);
+            self.best_estimate = estimate;
+        }
         estimate
     }
 }

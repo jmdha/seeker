@@ -10,10 +10,7 @@ impl Add {
 }
 
 impl Heuristic for Add {
-    fn estimate(&self, task: &Task, state: &State) -> usize {
-        task.goal
-            .iter()
-            .filter(|(fact, value)| state.has_fact(task, fact) != *value)
-            .count()
+    fn estimate(&self, _: &Task, _: &State) -> usize {
+        todo!()
     }
 }

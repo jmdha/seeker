@@ -3,10 +3,7 @@ pub mod error;
 mod gbfs;
 mod lgbfs;
 
-use crate::{
-    evaluator::{self, Evaluator},
-    heuristic::HeuristicKind,
-};
+use crate::{evaluator::Evaluator, heuristic::HeuristicKind};
 
 use self::error::Error;
 use clap::Subcommand;
