@@ -5,7 +5,6 @@ use std::time::{Duration, Instant};
 pub struct Evaluator {
     heuristic: Box<dyn Heuristic>,
     estimates: usize,
-    best_estimate: usize,
     time: Duration,
 }
 
@@ -18,7 +17,6 @@ impl Evaluator {
         Self {
             heuristic,
             estimates: 0,
-            best_estimate: usize::MAX,
             time: Duration::default(),
         }
     }
@@ -28,10 +26,6 @@ impl Evaluator {
         let estimate = self.heuristic.estimate(task, state);
         self.time += t.elapsed();
         self.estimates += 1;
-        if estimate < self.best_estimate {
-            println!("New best heuristic estimate: {}", estimate);
-            self.best_estimate = estimate;
-        }
         estimate
     }
 }

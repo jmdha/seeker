@@ -115,13 +115,12 @@ fn populate_atom(
     atom: &Atom,
     fixed: &HashMap<usize, usize>,
 ) -> Vec<Vec<usize>> {
-    let objects = task.objects_by_type();
     atom.args
         .iter()
         .map(|arg| match arg {
             Argument::Index(i) => match fixed.get(i) {
                 Some(i) => vec![*i],
-                None => objects[parameters[*i].type_index].to_owned(),
+                None => task.objects_typed[parameters[*i].type_index].to_owned(),
             },
             Argument::Const(i) => vec![*i],
         })
