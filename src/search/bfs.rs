@@ -16,8 +16,8 @@ impl BFS {
     }
 }
 
-impl<'a> SearchAlgorithm<'a> for BFS {
-    fn step(&mut self, task: &'a pddllib::task::Task) -> super::Result<'a> {
+impl SearchAlgorithm for BFS {
+    fn step(&mut self, task: &pddllib::task::Task) -> super::Result {
         let (node, _) = self.parents.get_index(self.index).ok_or(Error::Unsolvable)?;
         for successor in successors(task, node) {
             if successor.covers(task, &task.goal) {

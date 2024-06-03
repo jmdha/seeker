@@ -41,11 +41,12 @@ impl LGBFS {
     }
 }
 
-impl<'a> SearchAlgorithm<'a> for LGBFS {
-    fn step(&mut self, task: &'a pddllib::task::Task) -> super::Result<'a> {
+impl SearchAlgorithm for LGBFS {
+    fn step(&mut self, task: &pddllib::task::Task) -> super::Result {
         let Element { index, estimate: _ } = self.queue.pop().ok_or(Error::Unsolvable)?;
         let (node, _) = self.parents.get_index(index).unwrap();
         if node.covers(task, &task.goal) {
+            println!("States generated: {}", self.parents.len());
             return Ok(trace(&self.parents, index));
         }
         let estimate = self.heuristic.estimate(task, node);

@@ -1,7 +1,7 @@
 use super::Heuristic;
 use pddllib::{state::State, task::Task};
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct GoalCount {}
 
 impl Heuristic for GoalCount {

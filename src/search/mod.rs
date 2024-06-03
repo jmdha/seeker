@@ -1,13 +1,14 @@
-mod bfs;
+pub mod bfs;
 pub mod error;
-mod gbfs;
-mod lgbfs;
+pub mod gbfs;
+pub mod lgbfs;
 
 use crate::{evaluator::Evaluator, heuristic::HeuristicKind};
 
 use self::error::Error;
 use clap::Subcommand;
 use memory_stats::memory_stats;
+use metered::{hdr_histogram::AtomicHdrHistogram, measure, time_source::StdInstantMicros, HitCount, ResponseTime};
 use pddllib::{state::State, task::Task};
 use std::time::{Duration, Instant};
 
@@ -28,13 +29,13 @@ pub enum SearchKind {
     },
 }
 
-pub type Result<'a> = std::result::Result<Vec<State>, Error>;
+pub type Result = std::result::Result<Vec<State>, Error>;
 
-pub trait SearchAlgorithm<'a> {
-    fn step(&mut self, task: &'a Task) -> Result<'a>;
+pub trait SearchAlgorithm {
+    fn step(&mut self, task: &Task) -> Result;
 }
 
-pub fn generate<'a>(task: &'a Task, search: SearchKind) -> Box<dyn SearchAlgorithm<'a>> {
+pub fn generate<'a>(task: &'a Task, search: SearchKind) -> Box<dyn SearchAlgorithm> {
     match search {
         SearchKind::BFS => Box::new(bfs::BFS::new(&task.init)),
         SearchKind::GBFS { heuristic } => Box::new(gbfs::GBFS::new(&task.init, Evaluator::new(&task, heuristic))),
@@ -42,19 +43,23 @@ pub fn generate<'a>(task: &'a Task, search: SearchKind) -> Box<dyn SearchAlgorit
     }
 }
 
-pub fn solve<'a>(
-    task: &'a Task,
+pub fn solve(
+    task: &Task,
     time_limit: Option<Duration>,
     memory_limit: Option<usize>,
-    searcher: &mut Box<dyn SearchAlgorithm<'a>>,
-) -> Result<'a> {
+    searcher: &mut Box<dyn SearchAlgorithm>,
+) -> Result {
+    let hits: HitCount = HitCount::default();
+    let hit_time: ResponseTime<AtomicHdrHistogram, StdInstantMicros> =
+        ResponseTime::<AtomicHdrHistogram, StdInstantMicros>::default();
     let start = Instant::now();
-    let mut result: Result<'a>;
-    let mut peak_memory = 0;
-    let mut steps = 0;
+    let mut result: Result;
     loop {
-        result = searcher.step(task);
-        steps += 1;
+        measure!(&hits, {
+            measure!(&hit_time, {
+                result = searcher.step(task);
+            });
+        });
         if result.is_ok() {
             break;
         }
@@ -65,22 +70,23 @@ pub fn solve<'a>(
                 break;
             }
         }
-        if steps % 16 == 0 {
-            if let Some(usage) = memory_stats() {
-                let usage = usage.physical_mem;
-                if usage > peak_memory {
-                    peak_memory = usage;
-                }
-                if let Some(memory_limit) = memory_limit {
-                    if usage > memory_limit * 1000000 {
-                        result = Err(Error::OutOfMemory);
-                        break;
-                    }
+        if let Some(usage) = memory_stats() {
+            let usage = usage.physical_mem;
+            if let Some(memory_limit) = memory_limit {
+                if usage > memory_limit * 1000000 {
+                    result = Err(Error::OutOfMemory);
+                    break;
                 }
             }
         }
     }
-    println!("Peak memory: {}MB", peak_memory / 1000000);
-    println!("Steps: {}", steps);
+    println!("Steps: {}", hits.0.get());
+    println!(
+        "Step time: mean {:.2}us min {}us max {}us stdev {:.2}",
+        hit_time.histogram().mean(),
+        hit_time.histogram().min(),
+        hit_time.histogram().max(),
+        hit_time.histogram().stdev()
+    );
     result
 }

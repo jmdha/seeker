@@ -11,12 +11,14 @@ use pddllib::{
     },
 };
 
+#[derive(Debug)]
 struct Node {
     fact: (Fact, bool),
     weight: usize,
     children: Vec<Node>,
 }
 
+#[derive(Debug)]
 pub struct GoalGraph {
     goals: Vec<Node>,
 }

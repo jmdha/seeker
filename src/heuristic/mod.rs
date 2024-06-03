@@ -4,6 +4,7 @@ mod goal_count;
 mod goal_graph;
 
 use clap::Subcommand;
+use core::fmt::Debug;
 use pddllib::{state::State, task::Task};
 
 /// Heuristic
@@ -25,7 +26,7 @@ pub enum HeuristicKind {
     Add,
 }
 
-pub trait Heuristic {
+pub trait Heuristic: Debug {
     fn estimate(&self, task: &Task, state: &State) -> usize;
 }
 

@@ -41,8 +41,8 @@ impl GBFS {
     }
 }
 
-impl<'a> SearchAlgorithm<'a> for GBFS {
-    fn step(&mut self, task: &'a pddllib::task::Task) -> super::Result<'a> {
+impl SearchAlgorithm for GBFS {
+    fn step(&mut self, task: &pddllib::task::Task) -> super::Result {
         let Element { index, estimate: _ } = self.queue.pop().ok_or(Error::Unsolvable)?;
         let (node, _) = self.parents.get_index(index).unwrap();
         if node.covers(task, &task.goal) {

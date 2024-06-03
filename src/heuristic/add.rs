@@ -1,6 +1,7 @@
 use super::Heuristic;
 use pddllib::{state::State, task::Task};
 
+#[derive(Debug)]
 pub struct Add {}
 
 impl Add {
