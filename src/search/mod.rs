@@ -7,10 +7,8 @@ use crate::{evaluator::Evaluator, heuristic::HeuristicKind};
 
 use self::error::Error;
 use clap::Subcommand;
-use memory_stats::memory_stats;
 use metered::{hdr_histogram::AtomicHdrHistogram, measure, time_source::StdInstantMicros, HitCount, ResponseTime};
 use pddllib::{state::State, task::Task};
-use std::time::{Duration, Instant};
 
 /// Search Algorithm
 #[derive(Subcommand, Debug, Clone)]
@@ -43,16 +41,10 @@ pub fn generate<'a>(task: &'a Task, search: SearchKind) -> Box<dyn SearchAlgorit
     }
 }
 
-pub fn solve(
-    task: &Task,
-    time_limit: Option<Duration>,
-    memory_limit: Option<usize>,
-    searcher: &mut Box<dyn SearchAlgorithm>,
-) -> Result {
+pub fn solve(task: &Task, searcher: &mut Box<dyn SearchAlgorithm>) -> Result {
     let hits: HitCount = HitCount::default();
     let hit_time: ResponseTime<AtomicHdrHistogram, StdInstantMicros> =
         ResponseTime::<AtomicHdrHistogram, StdInstantMicros>::default();
-    let start = Instant::now();
     let mut result: Result;
     loop {
         measure!(&hits, {
@@ -62,22 +54,6 @@ pub fn solve(
         });
         if result.is_ok() {
             break;
-        }
-        if let Some(time_limit) = time_limit {
-            let elapsed = start.elapsed();
-            if elapsed > time_limit {
-                result = Err(Error::OutOfTime);
-                break;
-            }
-        }
-        if let Some(usage) = memory_stats() {
-            let usage = usage.physical_mem;
-            if let Some(memory_limit) = memory_limit {
-                if usage > memory_limit * 1000000 {
-                    result = Err(Error::OutOfMemory);
-                    break;
-                }
-            }
         }
     }
     println!("Steps: {}", hits.0.get());

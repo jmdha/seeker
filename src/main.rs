@@ -2,22 +2,10 @@ use anyhow::Result;
 use clap::Parser;
 use seeker::search::SearchKind;
 use seeker::search::{self, solve};
-use std::{
-    fs,
-    path::PathBuf,
-    time::{Duration, Instant},
-};
+use std::{fs, path::PathBuf, time::Instant};
 
 #[derive(Parser, Debug)]
 struct Args {
-    /// Time limit in human time.
-    /// Supported units: ns, us, ms, sec, min, hours, days, weeks, months, years (and few variations)
-    #[arg(short, long)]
-    #[clap(value_parser = humantime::parse_duration)]
-    time_limit: Option<Duration>,
-    /// Memory limit in MB
-    #[arg(short, long)]
-    memory_limit: Option<usize>,
     /// Avoids printing plan to stdout
     #[arg(short, long)]
     quiet: bool,
@@ -46,7 +34,7 @@ fn main() -> Result<()> {
         let mut searcher = search::generate(&task, args.search.unwrap());
         println!("Beginning search...");
         let t = Instant::now();
-        let _result = solve(&task, args.time_limit, args.memory_limit, &mut searcher);
+        let _result = solve(&task, &mut searcher);
         let result = _result?;
         (task.trace_path(&result), t.elapsed())
     };
