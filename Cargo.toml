@@ -10,11 +10,11 @@ description = "A PDDL planner"
 [dependencies]
 clap = { version = "4.5.4", features = ["derive"] }
 serde = { version = "1.0.202", features = ["derive"] }
-pddllib = "0.1.14"
+pddllib = "0.1.24"
 indexmap = "2.2.6"
 fxhash = "0.2.1"
 anyhow = "1.0.86"
-pddlp = "0.1.6"
+pddlp = "0.1.7"
 itertools = "0.13.0"
 metered = "0.9.0"
 
